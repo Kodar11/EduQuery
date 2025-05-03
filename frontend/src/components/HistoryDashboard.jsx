@@ -1,117 +1,11 @@
-// import React, { useEffect, useState } from "react";
-// import axios from "axios";
-// import Navbar from "./Navbar";
-
-// export default function HistoryDashboard() {
-//   const [history, setHistory] = useState([]);
-
-//   useEffect(() => {
-//     const fetchHistory = async () => {
-//       try {
-//         const res = await axios.get("http://localhost:8000/api/v1/analyze/history", {
-//           withCredentials: true,
-//         });
-//         console.log("Database:", res.data?.data?.userSummaries);
-//         setHistory(res.data?.data?.userSummaries || []);
-//       } catch (err) {
-//         console.error("Failed to fetch history", err);
-//       }
-//     };
-
-//     fetchHistory();
-//   }, []);
-
-//   return (
-//     <>
-//       <Navbar />
-//       <div className="min-h-screen bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 py-10 px-4">
-//         <div className="max-w-6xl mx-auto">
-//           <h1 className="text-4xl font-extrabold text-center text-indigo-700 mb-10">
-//             History
-//           </h1>
-
-//           {history.length === 0 ? (
-//             <p className="text-center text-gray-600 text-lg">No history found.</p>
-//           ) : (
-//             history.map((user, userIndex) =>
-//               user.topics.map((topic, topicIndex) => (
-//                 <div
-//                   key={`${userIndex}-${topicIndex}`}
-//                   className="bg-white shadow-md hover:shadow-xl transition-all duration-300 p-6 mb-8 rounded-2xl border border-gray-200"
-//                 >
-//                   <h2 className="text-2xl font-bold text-indigo-700 mb-4 capitalize">
-//                     Topic: {topic.topic_name}
-//                   </h2>
-
-//                   {topic.videos.map((video, vidIndex) => (
-//                     <div key={vidIndex} className="mb-6 border-b border-gray-200 pb-4">
-//                       <h3 className="text-xl font-semibold text-indigo-600">
-//                         {video.videoName || "Untitled Video"}
-//                       </h3>
-//                       <p className="text-gray-700 mb-1">
-//                         <strong className="text-gray-900">Video Link:</strong>{" "}
-//                         <a
-//                           href={video.videoLink}
-//                           target="_blank"
-//                           rel="noopener noreferrer"
-//                           className="text-blue-600 hover:underline break-all"
-//                         >
-//                           {video.videoLink}
-//                         </a>
-//                       </p>
-//                       {video.summary && (
-//                         <p className="text-gray-700 whitespace-pre-wrap mb-1">
-//                           <strong className="text-gray-900">Summary:</strong>{" "}
-//                           {video.summary}
-//                         </p>
-//                       )}
-
-//                       {video.commonTopics?.length > 0 && (
-//                         <div className="mb-4">
-//                           <h4 className="text-lg font-bold text-green-600 mb-2 border-b-2 border-green-300 pb-1">📌 Common Topics:</h4>
-//                           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-//                             {video.commonTopics.map((topic, i) => (
-//                               <div key={i} className="bg-gray-100 p-4 rounded-md shadow-md">
-//                                 <p className="text-gray-800 text-md">{topic}</p>
-//                               </div>
-//                             ))}
-//                           </div>
-//                         </div>
-//                       )}
-
-//                       {video.rareTopics?.length > 0 && (
-//                         <div>
-//                           <h4 className="text-lg font-bold text-red-600 mb-2 border-b-2 border-red-300 pb-1">🌟 Rare Topics:</h4>
-//                           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-//                             {video.rareTopics.map((topic, i) => (
-//                               <div key={i} className="bg-gray-100 p-4 rounded-md shadow-md">
-//                                 <p className="text-gray-800 text-md">{topic}</p>
-//                               </div>
-//                             ))}
-//                           </div>
-//                         </div>
-//                       )}
-//                     </div>
-//                   ))}
-//                 </div>
-//               ))
-//             )
-//           )}
-//         </div>
-//       </div>
-//     </>
-//   );
-// }
-
-
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Navbar from "./Navbar";
 
 export default function HistoryDashboard() {
   const [history, setHistory] = useState([]);
-  const [expandedSections, setExpandedSections] = useState({}); // Track visibility
+  const [expandedSections, setExpandedSections] = useState({});
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -128,7 +22,6 @@ export default function HistoryDashboard() {
     fetchHistory();
   }, []);
 
-  // Toggle section visibility by key
   const toggleSection = (key, type) => {
     setExpandedSections((prev) => ({
       ...prev,
@@ -139,6 +32,16 @@ export default function HistoryDashboard() {
     }));
   };
 
+  // Filter logic based on search input
+  const filteredHistory = history
+    .map((user) => ({
+      ...user,
+      topics: user.topics.filter((topic) =>
+        topic.topic_name.toLowerCase().includes(searchTerm.toLowerCase())
+      ),
+    }))
+    .filter((user) => user.topics.length > 0);
+
   return (
     <>
       <Navbar />
@@ -148,10 +51,20 @@ export default function HistoryDashboard() {
             History
           </h1>
 
-          {history.length === 0 ? (
-            <p className="text-center text-gray-600 text-lg">No history found.</p>
+          <div className="flex justify-center mb-6">
+            <input
+              type="text"
+              placeholder="Search by topic name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full max-w-md px-4 py-2 border bg-white border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+
+          {filteredHistory.length === 0 ? (
+            <p className="text-center text-gray-600 text-lg">No matching topics found.</p>
           ) : (
-            history.map((user, userIndex) =>
+            filteredHistory.map((user, userIndex) =>
               user.topics.map((topic, topicIndex) => (
                 <div
                   key={`${userIndex}-${topicIndex}`}
@@ -182,7 +95,6 @@ export default function HistoryDashboard() {
                           </a>
                         </p>
 
-                        {/* Summary toggle */}
                         {video.summary && (
                           <>
                             <button
@@ -200,7 +112,6 @@ export default function HistoryDashboard() {
                           </>
                         )}
 
-                        {/* Common Topics toggle */}
                         {video.commonTopics?.length > 0 && (
                           <>
                             <button
@@ -229,7 +140,6 @@ export default function HistoryDashboard() {
                           </>
                         )}
 
-                        {/* Rare Topics toggle */}
                         {video.rareTopics?.length > 0 && (
                           <>
                             <button

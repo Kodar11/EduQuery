@@ -1,28 +1,5 @@
 import mongoose, { Schema } from "mongoose";
 
-// const summarySchema = new Schema(
-//     {
-//         userId: {
-//             type: Schema.Types.ObjectId,
-//             ref: "User"
-//         },
-//         videos: [
-//             {
-//                 videoName: String,
-//                 videoLink: String,
-//                 summary: String,
-//                 topicsCovered : [String]
-//             }
-//         ],
-//         commonTopic: [String],
-//         rareTopic: [String],
-
-
-//     },
-
-// )
-
-
 const summarySchema = new Schema({
     userId: {
         type: Schema.Types.ObjectId,
@@ -45,8 +22,6 @@ const summarySchema = new Schema({
                     rareTopics: [String]
                 }
             ],
-            // commonTopic: [String],
-            // rareTopic: [String]
         }
     ]
 });

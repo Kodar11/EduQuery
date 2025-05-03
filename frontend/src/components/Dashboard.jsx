@@ -3,7 +3,6 @@ import { useLocation,useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "./Navbar";
 
-// ✅ Reusable Topic Section with Toggle
 function ToggleSection({ title, topics, color }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -87,19 +86,12 @@ export default function Dashboard() {
     <>
       <Navbar />
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white text-gray-800">
-        {/* <header className="bg-white border-b shadow">
-          <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-blue-600">📊 EduQuery Dashboard</h1>
-          </div>
-        </header> */}
 
         <main className="max-w-7xl mx-auto px-6 py-10">
-          {/* <h2 className="text-3xl font-semibold text-gray-800 mb-8">Video Insights</h2> */}
           <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
             <h1 className="text-3xl font-bold text-blue-600">Video Analysis</h1>
           </div>
 
-          {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
             <div className="bg-gradient-to-tr from-blue-100 to-blue-200 rounded-xl shadow-lg p-6 border border-blue-300">
               <p className="text-gray-700 text-sm mb-2">Total Videos Fetched</p>
@@ -111,7 +103,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Summaries */}
           <div className="mt-16">
             <h2 className="text-2xl font-semibold text-gray-800 mb-6">Video Summaries</h2>
             <h3 className="text-xl font-bold text-blue-700 mb-2">{query}</h3>
@@ -125,7 +116,6 @@ export default function Dashboard() {
                   const videoName = matchedVideo?.title || "Unknown Title";
                   const videoLink = `https://www.youtube.com/watch?v=${data.videoId}`;
 
-                  // Local toggle for summary
                   const [showSummary, setShowSummary] = useState(false);
 
                   return (
@@ -143,7 +133,6 @@ export default function Dashboard() {
                         Watch on YouTube
                       </a>
 
-                      {/* Summary toggle */}
                       <div className="mb-4">
                         <button
                           onClick={() => setShowSummary(!showSummary)}
@@ -159,7 +148,6 @@ export default function Dashboard() {
                         )}
                       </div>
 
-                      {/* Topic Sections with toggle */}
                       <ToggleSection
                         title="Common Topics"
                         topics={data.topics}

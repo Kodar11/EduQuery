@@ -1,4 +1,3 @@
-// App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import StartPage from './components/StartPage';
@@ -9,6 +8,7 @@ import Dashboard from './components/Dashboard';
 import HistoryDashboard from './components/HistoryDashboard';
 import ProtectedRoute from './components/ProtectedRouter';
 import IntroPage from './components/IntroPage'
+import EduQueryTour from './components/EduQueryTour';
 
 function App() {
   const isLoggedIn = !!localStorage.getItem('accessToken');
@@ -17,7 +17,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<StartPage />} />
-        <Route path="/demo" element={<IntroPage />} />
+        <Route path="/demo" element={<EduQueryTour/>} />
 
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />

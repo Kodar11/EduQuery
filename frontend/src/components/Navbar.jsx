@@ -1,4 +1,3 @@
-// components/Navbar.js
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -69,6 +68,17 @@ const Navbar = () => {
                   }`}
                 >
                   History
+                </Link>
+
+                <Link 
+                  to="/demo" 
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 ${
+                    isActive('/help') 
+                      ? 'bg-purple-700/80 text-white shadow-md shadow-purple-500/20' 
+                      : 'text-purple-200 hover:bg-purple-800/50 hover:text-white hover:shadow-md hover:shadow-purple-500/10'
+                  }`}
+                >
+                  Help
                 </Link>
               </div>
             </div>

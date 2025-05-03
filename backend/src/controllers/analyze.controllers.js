@@ -82,7 +82,7 @@ const getVideoDetailsFromLink = asyncHandler(async (req, res) => {
 
 const fetchVideosWithEnglishCaptions = async (query) => {
   try {
-    console.log("🔍 [Step 1] Searching videos for query:", query);
+    // console.log("🔍 [Step 1] Searching videos for query:", query);
 
     const videoRes = await axios.get(
       `https://www.googleapis.com/youtube/v3/search`,
@@ -99,18 +99,17 @@ const fetchVideosWithEnglishCaptions = async (query) => {
     );
 
     const videoData = videoRes.data;
-    console.log("📺 [Step 1.1] Raw video search data received:", videoData);
 
     if (!videoData.items || videoData.items.length === 0)
       throw new ApiError(404, "No video items found from search");
 
     const videoIds = videoData.items.map((v) => v.id.videoId).filter(Boolean);
-    console.log("📽 [Step 1.2] Extracted video IDs:", videoIds);
+    // console.log(" Extracted video IDs:", videoIds);
 
     if (videoIds.length === 0) return [];
 
     // Step 2: Check English captions
-    console.log("📝 [Step 2] Checking for English captions");
+    // console.log("📝 [Step 2] Checking for English captions");
 
     const captionChecks = videoIds.map(async (videoId) => {
       try {
@@ -128,7 +127,7 @@ const fetchVideosWithEnglishCaptions = async (query) => {
         const hasEnglishCaptions = captionData.items?.some(
           (caption) => caption.snippet.language === "en"
         );
-        console.log(`🎯 [Caption] Video ${videoId} has English captions: ${hasEnglishCaptions}`);
+        // console.log(` Video ${videoId} has English captions: ${hasEnglishCaptions}`);
         return hasEnglishCaptions ? videoId : null;
       } catch (err) {
         console.warn(`⚠️ Error checking captions for ${videoId}:`, err.message);
@@ -137,12 +136,9 @@ const fetchVideosWithEnglishCaptions = async (query) => {
     });
 
     const videosWithEnglishCaptionsIds = (await Promise.all(captionChecks)).filter(Boolean);
-    console.log("✅ [Step 2.1] Videos with English captions:", videosWithEnglishCaptionsIds);
+    // console.log(" Videos with English captions:", videosWithEnglishCaptionsIds);
 
     if (videosWithEnglishCaptionsIds.length === 0) return [];
-
-    // Step 3: Fetch stats + duration
-    console.log("📊 [Step 3] Fetching video statistics and durations");
 
     const statsRes = await axios.get(
       `https://www.googleapis.com/youtube/v3/videos`,
@@ -156,7 +152,7 @@ const fetchVideosWithEnglishCaptions = async (query) => {
     );
 
     const statsData = statsRes.data;
-    console.log("📈 [Step 3.1] Stats fetched:", statsData);
+    // console.log("📈 [Step 3.1] Stats fetched:", statsData);
 
     const parseDuration = (duration) => {
       const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
@@ -192,7 +188,7 @@ const fetchVideosWithEnglishCaptions = async (query) => {
       .slice(0, 10);
 
     resultForRanking = videosWithStats
-    console.log("🎬 [Final] Filtered long videos:", videosWithStats);
+    // console.log("🎬 [Final] Filtered long videos:", videosWithStats);
     return videosWithStats;
   } catch (error) {
     console.error("🔥 [ERROR] Failed to fetch videos:", error.message);
@@ -210,7 +206,7 @@ const getVideos = asyncHandler(async (req, res) => {
 
   const videos = await fetchVideosWithEnglishCaptions(query);
 
-  console.log("✅ [Route] Sending back video response");
+  // console.log("✅ [Route] Sending back video response");
   return res.status(200).json(new ApiResponse(200, { videos }, "Videos fetched successfully"));
 });
 
@@ -264,12 +260,12 @@ const getHistory = asyncHandler(async (req, res) => {
 });
 
 const chunkText = (text, chunkSize = 8000) => {
-  console.log(`🔧 Chunking text of length ${text.length} into chunks of size ${chunkSize}`);
+  // console.log(`🔧 Chunking text of length ${text.length} into chunks of size ${chunkSize}`);
   const chunks = [];
   for (let i = 0; i < text.length; i += chunkSize) {
     chunks.push(text.slice(i, i + chunkSize));
   }
-  console.log(`✅ Created ${chunks.length} chunks`);
+  // console.log(`✅ Created ${chunks.length} chunks`);
   return chunks;
 };
 
@@ -282,7 +278,7 @@ const summarizeChunkText = async (chunk) => {
     console.log(`📝 Summarizing a chunk of length ${chunk.length}...`);
     const res = await axios.post(process.env.API_URL, {
       model: "llama3",
-      prompt: `Summarize the following text in 100 words and don’t write anything else:\n\n${chunk}`,
+      prompt: `Summarize the following text in 100 words and don't write anything else:\n\n${chunk}`,
       stream: false,
     });
     console.log("✅ Chunk summarized successfully");
@@ -309,7 +305,7 @@ const summarizeUntilCompact = async (textChunks, maxWords = 4000) => {
 
     const combined = summaries.join('\n\n');
     const wordLen = wordCount(combined);
-    console.log(`📊 Combined summary word count: ${wordLen}`);
+    // console.log(`📊 Combined summary word count: ${wordLen}`);
 
     if (wordLen <= maxWords) {
       console.log(`✅ Final compressed summary is within word limit (${wordLen} words)`);
@@ -509,38 +505,6 @@ const summarizeVideos = asyncHandler(async (req, res) => {
 
 
 // Save summary
-// const saveSummary = asyncHandler(async (req, res) => {
-
-//   const { videos, query } = req.body;
-
-//   if (!Array.isArray(videos) || videos.length === 0) {
-//     throw new ApiError(400, "Videos array is required and cannot be empty");
-//   }
-
-//   const userId = req.user._id;
-//   console.log(`📥 Saving all summaries for user: ${userId}`);
-
-//   let userSummaryDoc = await Summary.findOne({ userId });
-
-//   if (userSummaryDoc) {
-//     console.log("📄 Existing summary document found. Appending new video summaries...");
-
-//     userSummaryDoc.topics.push(...videos);
-
-//     await userSummaryDoc.save();
-//   } else {
-//     console.log("🆕 No summary document found. Creating new document...");
-
-//     userSummaryDoc = await Summary.create({
-//       userId,
-//       videos,
-//     });
-//   }
-
-//   return res.status(200).json(
-//     new ApiResponse(200, userSummaryDoc, "All video summaries saved successfully")
-//   );
-// });
 
 const saveSummary = asyncHandler(async (req, res) => {
   const { videos, query } = req.body;
